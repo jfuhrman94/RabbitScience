@@ -1,0 +1,11 @@
+# use this file to store private "key, value" pairs
+#    outside of the git repo. Currently keys used:
+#        SECRET_KEY
+#        USERNAME
+#        PASSWORD
+private.txt
+
+# Keep the logs folder as part of the repo
+#    but ignore any generate log files
+logs/**
+!logs/.gitkeep

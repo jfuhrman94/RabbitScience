@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+    <head>
+      <title>RabbitScience</title>
+
+      <!-- Required meta tags -->
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      
+      <!-- stylesheet for bootstrap -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+      <!-- Custom styles for template -->
+      <link rel="stylesheet" href="{{ url_for('.static',filename='navbar.css') }}">
+
+      <!-- my style stuff -->
+      <style>
+      img {
+        display: block;
+        margin: 20px auto;
+      }
+      </style>
+    
+    </head>
+
+    <body style="background-color: #A7B3A5">
+      <nav class="navbar navbar-expand-sm navbar-dark bg-company-rust">
+        <a class="navbar-brand" href="{{ url_for('root') }}">Rabbit Science</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+  
+        <div class="collapse navbar-collapse" id="navbar">
+          {% if not session.logged_in %}
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('login') }}">Log In </a>
+            </li>
+          {% else %}
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="{{ url_for('data') }}">Data </a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="{{ url_for('log') }}">Log </a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="{{ url_for('configure') }}">Configure </a>
+            </li>
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('logout') }}">Log Out </a>
+            </li>
+          {% endif %}
+          </ul>
+        </div>
+      </nav>
+      <div class="container-fluid main">
+        {% block content %}{% endblock %}
+      </div>
+      <!-- javascript for bootstrap -->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    </body>
+</html>
