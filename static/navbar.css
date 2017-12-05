@@ -1,0 +1,43 @@
+body {
+  padding-bottom: 20px;
+}
+
+.navbar {
+  margin-bottom: 0px;
+}
+
+.bg-company-rust {
+  background-color: #373F27;
+}
+
+.bg-company-slate {
+  background-color: #636B46;
+}
+
+.main {
+  width: 80%;
+  margin: 0px auto;
+  background-color: white;
+  height: 100%;
+  padding: 30px;
+}
+
+.side-link {
+  color: white;
+  font-size: large;
+}
+
+.comment-box {
+  height: 300px;
+  width: 80%;
+}
+
+.internal {
+  width: 100%;
+  margin: 20px 0px
+}
+
+label { margin: 0px 0px 0px 20px }
+
+html { height: 100% }
+body { height: 100% }

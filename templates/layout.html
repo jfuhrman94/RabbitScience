@@ -23,7 +23,7 @@
     
     </head>
 
-    <body style="background-color: #A7B3A5">
+    <body style="background-color: #CDA34F">
       <nav class="navbar navbar-expand-sm navbar-dark bg-company-rust">
         <a class="navbar-brand" href="{{ url_for('root') }}">Rabbit Science</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@
               <a class="nav-link" href="{{ url_for('data') }}">Data </a>
             </li>
             <li class="nav-item active">
-              <a class="nav-link" href="{{ url_for('log') }}">Log </a>
+              <a class="nav-link" href="{{ url_for('log_page') }}">Log </a>
             </li>
             <li class="nav-item active">
               <a class="nav-link" href="{{ url_for('configure') }}">Configure </a>
@@ -56,7 +56,7 @@
           </ul>
         </div>
       </nav>
-      <div class="container-fluid main">
+      <div class="container-fluid main" style="background-color: #E9E7DA">
         {% block content %}{% endblock %}
       </div>
       <!-- javascript for bootstrap -->
