@@ -55,6 +55,8 @@ def log_page():
 
 @app.route("/reg_plant")
 def reg_plant():
+    if not session.get('logged_in'):
+        abort(401)
     plant_type = request.args.get('plant_type')
     if plant_type == 'new':
         plant_type = request.args.get('new_plant_type')
