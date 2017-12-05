@@ -1,17 +1,14 @@
-body {
-  padding-bottom: 20px;
-}
-
 .navbar {
   margin-bottom: 0px;
 }
 
-.bg-company-rust {
-  background-color: #373F27;
-}
+.nav-main-color { background-color: #358039}
+.nav-side-color { background-color: #358039}
 
-.bg-company-slate {
-  background-color: #636B46;
+html { height: 100% }
+body { 
+  height: 100%; 
+  padding-bottom: 20px;
 }
 
 .main {
@@ -38,6 +35,3 @@ body {
 }
 
 label { margin: 0px 0px 0px 20px }
-
-html { height: 100% }
-body { height: 100% }
