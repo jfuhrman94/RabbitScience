@@ -6,6 +6,9 @@ from subprocess import check_call as call
 from flask import *
 from flup.server.fcgi import WSGIServer
 
+# Switch for local testing
+local_test = False
+
 # Initialize the app
 app = Flask('RabbitApp')
 
@@ -108,10 +111,11 @@ def write_access_log(response):
     return response
 
 if __name__ == '__main__':
-    # Use this for local testing w/out lighttpd
-    #app.logger.warn(u"Launching RabbitApp for local testing")
-    #app.run(host='0.0.0.0', debug=True, threaded=True)
-    
-    # Use this for production testing with lighttpd
-    app.logger.debug(u"Launching RabbitApp on lighttpd")
-    WSGIServer(app).run()
+    if local_test:
+        # Use this for local testing w/out lighttpd
+        app.logger.warn(u"Launching RabbitApp for local testing")
+        app.run(host='0.0.0.0', debug=True, threaded=True)
+    else:
+        # Use this for production testing with lighttpd
+        app.logger.debug(u"Launching RabbitApp on lighttpd")
+        WSGIServer(app).run()
