@@ -1,4 +1,28 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2>This page is not implemented yet</h2>
+<div class="container-fluid" style="height: 100%">
+    <div class="row" style="height: 100%">
+        <nav class="col-sm-2 -bg-light sidebar bg-company-slate" >
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                  <a class="nav-link side-link" href="{{ url_for('log_page') }}?log_page=log_home">Overview</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link side-link" href="{{ url_for('log_page') }}?log_page=log_reg">Register Plant </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link side-link" href="{{ url_for('log_page') }}?log_page=log_view">View Plant </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link side-link" href="{{ url_for('log_page') }}?log_page=log_mg">Manage Plant </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link side-link" href="{{ url_for('log_page') }}?log_page=log_ret">Retire Plant </a>
+                </li>
+          </nav>
+          <main role="main" class="col-sm-10 ml-sm-auto">
+              {% include log_page %}
+          </main>
+    </div>
+</div>
 {% endblock %}

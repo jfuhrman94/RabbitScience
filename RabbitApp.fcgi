@@ -38,10 +38,22 @@ def root():
     return render_template('home.html')
 
 @app.route("/log")
-def log():
+def log_page():
     if not session.get('logged_in'):
         abort(401)
-    return render_template('log.html')
+    log_args = {}
+    log_page = request.args.get('log_page')
+    if not log_page:
+        log_page = 'log_home'
+    if log_page == 'log_reg':
+        log_args['plant_types'] = ['roses','weed']
+    log_page = 'log-templates/' + log_page + '.html'
+    print log_page
+    return render_template('log.html', log_page=log_page, log_args=log_args)
+
+@app.route("/reg_plant")
+def reg_plant():
+    return None
 
 @app.route("/configure")
 def configure():
