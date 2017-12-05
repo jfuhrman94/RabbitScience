@@ -37,7 +37,7 @@ def _set_session_vals():
 def root():
     return render_template('home.html')
 
-@app.route("/log")
+@app.route("/log_page")
 def log_page():
     if not session.get('logged_in'):
         abort(401)
@@ -48,12 +48,18 @@ def log_page():
     if log_page == 'log_reg':
         log_args['plant_types'] = ['roses','weed']
     log_page = 'log-templates/' + log_page + '.html'
-    print log_page
     return render_template('log.html', log_page=log_page, log_args=log_args)
 
 @app.route("/reg_plant")
 def reg_plant():
-    return None
+    plant_type = request.args.get('plant_type')
+    if plant_type == 'new':
+        plant_type = request.args.get('new_plant_type')
+    flash("Plant added: " + plant_type)
+    nickname = request.args.get('nickname')
+    if nickname:
+        flash("Nickname: " + nickname)
+    return render_template('log.html', log_page='log-templates/log_submitted.html')
 
 @app.route("/configure")
 def configure():
