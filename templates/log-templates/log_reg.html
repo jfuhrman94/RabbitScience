@@ -1,7 +1,7 @@
 <form id="reg_plant" action="{{ url_for('reg_plant') }}">
         <dl>
           <dt>Plant Type*:</dt>
-          <select type=text onChange="hide_plant();" id="plant_selector" name="plant_type">
+          <select type=text onChange="hide_plant();" id="plant_selector" name="plant_type" required>
             <option value="new" selected>New</option>
             {% for plant_type in log_args.plant_types %}
             <option value="{{ plant_type }}">{{ plant_type }}</option>

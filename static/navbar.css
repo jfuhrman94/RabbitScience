@@ -19,14 +19,6 @@ body {
   padding: 30px;
 }
 
-.status {
-  height: 30px;
-  width: 80%;
-  margin: 0px auto;
-  margin-bottom: 10px;
-  background-color: white;
-}
-
 .side-link {
   color: white;
   font-size: large;

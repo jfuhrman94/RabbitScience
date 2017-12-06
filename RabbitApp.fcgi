@@ -4,6 +4,7 @@ import logging
 import sqlite3
 import os.path
 import datetime
+import json
 from logging import FileHandler
 from subprocess import check_call as call
 from flask import *
@@ -81,6 +82,33 @@ def log_page():
         for row in db.execute('select distinct plant_type from plants'):
             plant_types.append(row[0])
         log_args['plant_types'] = plant_types
+    if log_page == 'log_view':
+        active_plants = []
+        retired_plants = []
+        db = get_db()
+        for row in db.execute('select * from plants where retired is null'):
+            plant = {}
+            plant['id'] = str(row[0])
+            plant['plant_type'] =row[1]
+            plant['nickname'] = row[2]
+            plant['born'] = str(row[3])
+            print "plant:"
+            print plant
+            active_plants.append(plant)
+        for row in db.execute('select * from plants where retired is not null'):
+            plant = {}
+            plant['id'] = str(row[0])
+            plant['plant_type'] =row[1]
+            plant['nickname'] = row[2]
+            plant['born'] = str(row[3])
+            plant['retired'] = str(row[4])
+            retired_plants.append(plant)
+        print 'ap: '
+        print active_plants
+        log_args['active_plants'] = active_plants
+        log_args['active_json'] = json.dumps(active_plants)
+        log_args['retired_plants'] = retired_plants
+        log_args['retired_json'] = json.dumps(retired_plants)
     log_page = 'log-templates/' + log_page + '.html'
     return render_template('log.html', log_page=log_page, log_args=log_args)
 
@@ -112,6 +140,12 @@ def reg_plant():
     if not os.path.exists(('static/plants/' + id)):
         os.makedirs(('static/plants/' + id))
     return render_template('log.html', log_page='log-templates/log_home.html')
+
+@app.route("/view_plant")
+def view_plant():
+    if not session.get('logged_in'):
+        abort(401)
+    return log_page()
 
 @app.route("/configure")
 def configure():

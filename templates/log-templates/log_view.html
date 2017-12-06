@@ -1,0 +1,97 @@
+
+<div class="conainter-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <form action="{{ url_for('view_plant') }}" onChange="update_plant('id_form');" style="display:inline">
+                <label style="margin:0px"><b>By ID:</b></label>
+                <select name=plant_id id="id_form">
+                    <option value=""></option>
+                    {% for plant in log_args.active_plants %}
+                    <option value="{{ plant.id }}">{{ plant.id }}</option>
+                    {% endfor %}
+                    <option disabled>--Retired Plants--</option>
+                    {% for plant in log_args.retired_plants %}
+                    <option value="{{ plant.id }}">{{ plant.id }}</option>
+                    {% endfor %}
+                </select>
+                <input type=submit value=Submit>
+            </form>
+            <script>
+                function update_plant(form_id) {
+                    var selected_test = document.getElementById(form_id).value;
+                    var active_id = document.getElementById("active_id");
+                    var active_type = document.getElementById("active_type");
+                    var active_nickname = document.getElementById("active_nickname");
+                    var active_born = document.getElementById("active_born");
+                    var active_plants = JSON.parse({{ log_args.active_json|tojson|safe }});
+                    var retired_plants = JSON.parse({{ log_args.retired_json|tojson|safe }});
+                    var found = false;
+                    for (i=0; i<active_plants.length; i++) {
+                        if (active_plants[i].id == selected_test || active_plants[i].nickname == selected_test) {
+                            var plant = active_plants[i];
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        for (i=0; i<retired_plants.length; i++) {
+                            if (retired_plants[i].id == selected_test || retired_plants[i].nickname == selected_test) {
+                                var plant = retired_plants[i];
+                                break;
+                            }
+                        }
+                    }
+                    if (plant) {
+                        active_id.textContent = plant.id;
+                        active_type.textContent = plant.plant_type;
+                        active_nickname.textContent = plant.nickname;
+                        active_born.textContent = plant.born;
+                        if (!found){
+                            active_retired.textContent = plant.retired;
+                        }
+                    }
+                }
+            </script>
+        </div>
+
+        <div class="col-sm-6">
+            <form action="{{ url_for('view_plant') }}" onChange="update_plant('nick_form');" style="display:inline">
+                <label style="margin:0px"><b>By Nickname:</b></label>
+                <select name=plant_id id="nick_form">
+                    <option value=""></option>
+                    {% for plant in log_args.active_plants %}
+                    <option value="{{ plant.nickname }}">{{ plant.nickname }}</option>
+                    {% endfor %}
+                    <option disabled>--Retired Plants--</option>
+                    {% for plant in log_args.retired_plants %}
+                    <option value="{{ plant.nickname }}">{{ plant.nickname }}</option>
+                    {% endfor %}
+                </select>
+                <input type=submit value=Submit>
+            </form>
+        </div>
+    </div>
+</div>
+<br>
+<table style="width:250px">
+    <tr><td>
+    <span style:><b>ID:</b></span>
+    </td><td>
+    <span id=active_id></span><br>
+    <tr><td>
+    <span><b>Plant Type:</b></spa>
+    </td><td>
+    <span id=active_type></span><br>
+    <tr><td>
+    <span><b>Nickname:</b></span>
+    </td><td>
+    <span id=active_nickname></span><br>
+    <tr><td>
+    <span><b>Born:</b></span>
+    </td><td>
+    <span id=active_born></span>
+    <tr><td>
+    <span><b>Retired:</b></span>
+    </td><td>
+    <span id=active_retired></span>
+</table>
