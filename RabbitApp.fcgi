@@ -1,6 +1,9 @@
 #!/usr/bin/python
 import time
 import logging
+import sqlite3
+import os.path
+import datetime
 from logging import FileHandler
 from subprocess import check_call as call
 from flask import *
@@ -36,6 +39,30 @@ def _set_session_vals():
         vals[key] = None
     session["vals"] = vals
 
+def connect_db():
+    rv = sqlite3.connect('plants.db')
+    rv.row_factory = sqlite3.Row
+    return rv
+
+def get_db():
+    if not hasattr(g, 'plants_db'):
+        g.plants_db = connect_db()
+    return g.plants_db
+
+@app.teardown_appcontext
+def close_db(error):
+    if hasattr(g, 'plants_db'):
+        g.plants_db.close()
+
+def init_db():
+    db = connect_db()
+    with open('plants.sql', 'r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
+
+def _get_plant_types():
+    return None
+
 @app.route("/")
 def root():
     return render_template('home.html')
@@ -49,7 +76,11 @@ def log_page():
     if not log_page:
         log_page = 'log_home'
     if log_page == 'log_reg':
-        log_args['plant_types'] = ['roses','weed']
+        db = get_db()
+        plant_types = []
+        for row in db.execute('select distinct plant_type from plants'):
+            plant_types.append(row[0])
+        log_args['plant_types'] = plant_types
     log_page = 'log-templates/' + log_page + '.html'
     return render_template('log.html', log_page=log_page, log_args=log_args)
 
@@ -60,11 +91,27 @@ def reg_plant():
     plant_type = request.args.get('plant_type')
     if plant_type == 'new':
         plant_type = request.args.get('new_plant_type')
-    flash("Plant added: " + plant_type)
     nickname = request.args.get('nickname')
-    if nickname:
-        flash("Nickname: " + nickname)
-    return render_template('log.html', log_page='log-templates/log_submitted.html')
+    db = get_db()
+    db.execute('insert into plants (plant_type, nickname, born) values (?,?,?)', (plant_type, nickname, datetime.date.today()))
+    for row in db.execute('select last_insert_rowid()'):
+        print 'row: ' + str(row[0])
+        id = 'plant_' + str(row[0])
+        print 'id: ' + id
+    with app.open_resource('new_plant.sql', mode='r') as f:
+        qry = f.read().replace('[[ID]]',id)
+        print 'qry: ' + qry
+        db.cursor().executescript(qry)
+    comment = request.args.get('comment')
+    print 'comment: ' + comment
+    if comment:
+        print 'adding row'
+        print 'insert into {} (posted, comment) values (?, ?)'.format(id)
+        db.execute('insert into {} (posted, comment) values (?, ?)'.format(id), (int(time.time()), comment))
+    db.commit()
+    if not os.path.exists(('static/plants/' + id)):
+        os.makedirs(('static/plants/' + id))
+    return render_template('log.html', log_page='log-templates/log_home.html')
 
 @app.route("/configure")
 def configure():
@@ -97,14 +144,12 @@ def login():
             error = 'Invalid password'
         else:
             session['logged_in'] = True
-            flash('You were logged in')
             return redirect(url_for('root'))
     return render_template('login.html', error=error)
 
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
-    flash('You were logged out')
     return redirect(url_for('root'))
 
 @app.after_request
@@ -113,6 +158,8 @@ def write_access_log(response):
     return response
 
 if __name__ == '__main__':
+    if not os.path.isfile('plants.db'):
+        init_db()
     if local_test:
         # Use this for local testing w/out lighttpd
         app.logger.warn(u"Launching RabbitApp for local testing")

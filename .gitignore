@@ -9,3 +9,11 @@ private.txt
 #    but ignore any generate log files
 logs/**
 !logs/.gitkeep
+
+# ignore database files
+*.db
+*.rrd
+
+# ignore plant image folders
+static/plants/**
+!static/plants/.gitkeep
