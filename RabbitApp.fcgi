@@ -162,8 +162,10 @@ def view_plant():
         entry = {}
         for i, key in enumerate(columns):
             entry[key] = row[i]
-        entry['comment'] = entry['comment'].replace('\n','<br>')
+        entry['comment'] = entry['comment'].replace('\n','[br]')
         argDict['entries'].append(entry)
+        print "comment: "
+        print entry['comment']
     return log_page(argDict=argDict)
 
 @app.route("/configure")

@@ -2,7 +2,8 @@
 {% block content %}
 <div class="row fill-height">
     <div class="col-sm-2 fill-height">
-        <nav class="navbar navbar-default navbar-fixed-side nav-side-color fill-height">
+        <div class="fill-height nav-side-color">
+        <nav class="navbar navbar-default navbar-fixed-side nav-side-color">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
                     <a class="nav-link side-link" href="{{ url_for('log_page') }}?log_page=log_home">Overview</a>
@@ -21,6 +22,7 @@
                 </li>
             </ul>
         </nav>
+        </div>
     </div>
     <div class="col-sm-10 fill-height" style="overflow-y:scroll">
         {% include log_page %}

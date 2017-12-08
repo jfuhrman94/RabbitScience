@@ -6,7 +6,7 @@
     <p>
     id: {{ entry.id }}<br>
     posted: {{ entry.posted }}<br>
-    comment: {{ entry.comment }}<br>
+    comment: {{ entry.comment|striptags|replace("[br]","<br>")|safe }}<br>
     {% if entry.img != None %}
     image: <img src={{ url_for('.static',filename='plants/plant_1/test.png') }} alt='test'>
     {% endif %}
