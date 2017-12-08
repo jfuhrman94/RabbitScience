@@ -69,20 +69,25 @@ def root():
     return render_template('home.html')
 
 @app.route("/log_page")
-def log_page():
+def log_page(argDict={}):
     if not session.get('logged_in'):
         abort(401)
     log_args = {}
+    for key in argDict:
+        log_args[key] = argDict[key]
     log_page = request.args.get('log_page')
     if not log_page:
-        log_page = 'log_home'
+        if 'log_page' in argDict:
+            log_page = argDict['log_page']
+        else:
+            log_page = 'log_home'
     if log_page == 'log_reg':
         db = get_db()
         plant_types = []
         for row in db.execute('select distinct plant_type from plants'):
             plant_types.append(row[0])
         log_args['plant_types'] = plant_types
-    if log_page == 'log_view':
+    if log_page in ['log_view', 'log_mg', 'log_ret']:
         active_plants = []
         retired_plants = []
         db = get_db()
@@ -139,13 +144,27 @@ def reg_plant():
     db.commit()
     if not os.path.exists(('static/plants/' + id)):
         os.makedirs(('static/plants/' + id))
+    flash('Registered New {}'.format(plant_type))
     return render_template('log.html', log_page='log-templates/log_home.html')
 
 @app.route("/view_plant")
 def view_plant():
     if not session.get('logged_in'):
         abort(401)
-    return log_page()
+    argDict = {}
+    argDict['log_page'] = 'log_view'
+    argDict['entries'] = []
+    db = get_db()
+    id = 'plant_' + request.args.get('plant_id')
+    c = db.execute('select * from {}'.format(id))
+    columns = [desc[0] for desc in c.description]
+    for row in db.execute('select * from {}'.format(id)):
+        entry = {}
+        for i, key in enumerate(columns):
+            entry[key] = row[i]
+        entry['comment'] = entry['comment'].replace('\n','<br>')
+        argDict['entries'].append(entry)
+    return log_page(argDict=argDict)
 
 @app.route("/configure")
 def configure():
@@ -178,12 +197,14 @@ def login():
             error = 'Invalid password'
         else:
             session['logged_in'] = True
+            flash('Logged In')
             return redirect(url_for('root'))
     return render_template('login.html', error=error)
 
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
+    flash('Logged Out')
     return redirect(url_for('root'))
 
 @app.after_request
