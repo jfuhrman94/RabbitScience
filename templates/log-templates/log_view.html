@@ -1,12 +1,19 @@
 <h2 class=heading>View Plant</h2>
 {% set form_action = 'view_plant' %}
 {% include 'log-templates/log_search.html' %}
+
+{% if request.args.get('plant_id') %}
+<br>
+<h3>History for Plant {{ request.args.get('plant_id') }}</h3>
+<br>
+{% endif %}
+
 {% for entry in log_args.entries %}
 <div class=entry>
     <p>
-    id: {{ entry.id }}<br>
+    entry id: {{ entry.id }}<br>
     posted: {{ entry.posted }}<br>
-    comment: {{ entry.comment|striptags|replace("[br]","<br>")|safe }}<br>
+    comment: {{ entry.comment|striptags|replace("[br]","<br>&emsp;")|safe }}<br>
     {% if entry.img != None %}
     image: <img src={{ url_for('.static',filename='plants/plant_1/test.png') }} alt='test'>
     {% endif %}

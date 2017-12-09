@@ -33,6 +33,11 @@ app.config.update(dict(
     SECRET_KEY=private['SECRET_KEY']
 ))
 
+# standard Arduino data types
+dataTypes = ['LED_1']
+# Standard plant table cols
+plantCols = ['id','posted','img','plot','comment'] + dataTypes
+
 keys = ['last', 'record1', 'record2', 'record3']
 def _set_session_vals():
     vals = {}
@@ -97,8 +102,6 @@ def log_page(argDict={}):
             plant['plant_type'] =row[1]
             plant['nickname'] = row[2]
             plant['born'] = str(row[3])
-            print "plant:"
-            print plant
             active_plants.append(plant)
         for row in db.execute('select * from plants where retired is not null'):
             plant = {}
@@ -108,8 +111,6 @@ def log_page(argDict={}):
             plant['born'] = str(row[3])
             plant['retired'] = str(row[4])
             retired_plants.append(plant)
-        print 'ap: '
-        print active_plants
         log_args['active_plants'] = active_plants
         log_args['active_json'] = json.dumps(active_plants)
         log_args['retired_plants'] = retired_plants
@@ -128,24 +129,20 @@ def reg_plant():
     db = get_db()
     db.execute('insert into plants (plant_type, nickname, born) values (?,?,?)', (plant_type, nickname, datetime.date.today()))
     for row in db.execute('select last_insert_rowid()'):
-        print 'row: ' + str(row[0])
         id = 'plant_' + str(row[0])
-        print 'id: ' + id
     with app.open_resource('new_plant.sql', mode='r') as f:
         qry = f.read().replace('[[ID]]',id)
-        print 'qry: ' + qry
         db.cursor().executescript(qry)
     comment = request.args.get('comment')
-    print 'comment: ' + comment
     if comment:
-        print 'adding row'
-        print 'insert into {} (posted, comment) values (?, ?)'.format(id)
         db.execute('insert into {} (posted, comment) values (?, ?)'.format(id), (int(time.time()), comment))
     db.commit()
     if not os.path.exists(('static/plants/' + id)):
         os.makedirs(('static/plants/' + id))
     flash('Registered New {}'.format(plant_type))
-    return render_template('log.html', log_page='log-templates/log_home.html')
+    argDict = {}
+    argDict['log_page'] = 'log_reg'
+    return log_page(argDict=argDict)
 
 @app.route("/view_plant")
 def view_plant():
@@ -167,6 +164,71 @@ def view_plant():
         print "comment: "
         print entry['comment']
     return log_page(argDict=argDict)
+
+@app.route("/mg_plant")
+def mg_plant():
+    if not session.get('logged_in'):
+        abort(401)
+    argDict = {}
+    argDict['log_page'] = 'log_mg'
+    argDict['dataTypes_json'] = json.dumps(dataTypes)
+    db = connect_db()
+    id = 'plant_' + request.args.get('plant_id')
+    c = db.execute('select * from {}'.format(id))
+    existing_cols = [desc[0] for desc in c.description]
+    manual_cols = []
+    for col in existing_cols:
+        if not col in plantCols:
+            manual_cols.append(col)
+    argDict['manual_sources'] = manual_cols
+    return log_page(argDict=argDict)
+
+@app.route("/new_entry")
+def new_entry():
+    if not session.get('logged_in'):
+        abort(401)
+    db = connect_db()
+    id = 'plant_' + request.args.get('plant_id')
+    cols = []
+    vals = []
+    if request.args.get('save_sensor_data') == 'on':
+        for col in request.args.getlist('sensor_data'):
+            cols.append(str(col))
+            vals.append(getSensorData(col))
+    c = db.execute('select * from {}'.format(id))
+    existing_cols = [desc[0] for desc in c.description]
+    for col in existing_cols:
+        if not col in plantCols:
+            if request.args.get(col):
+                cols.append(str(col))
+                vals.append(float(request.args.get(col)))
+    if request.args.get('new_source') == 'on':
+        new_cols = request.args.getlist('col_name')
+        new_vals = request.args.getlist('col_value')
+        for i in range(len(new_cols)):
+            new_cols[i] = str(new_cols[i])
+            new_vals[i] = float(new_vals[i])
+            db.execute('alter table {0} add {1} float'.format(id, new_cols[i]))
+        cols += new_cols
+        vals += new_vals
+    if request.args.get('comment'):
+        cols.append('comment')
+        vals.append(request.args.get('comment'))
+    cols.append('posted')
+    vals.append(str(int(time.time())))
+    command = 'insert into {0} {1} values '.format(id, tuple(cols))
+    command = command.replace("'","")
+    command += '(' + '?,'*len(cols) + ')'
+    command = command.replace(',)', ')')
+    print 'cmd: ' + command
+    for val in vals:
+        print str(val)
+    db.execute(command, vals)
+    db.commit()
+    return redirect( url_for('log_page') + "?log_page=log_mg" )
+
+def getSensorData(col):
+    return 1234
 
 @app.route("/configure")
 def configure():
