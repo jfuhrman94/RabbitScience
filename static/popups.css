@@ -5,12 +5,17 @@
     left: 50%;
     display: inline-block;
     cursor: pointer;
+    width: auto;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 /* The actual popup (appears on top) */
 .popup .popuptext {
     visibility: hidden;
-    width: 160px;
+    width: auto;
+    white-space: nowrap;
+    overflow: hidden;
     background-color: #E9E7DA;
     color: black;
     text-align: center;

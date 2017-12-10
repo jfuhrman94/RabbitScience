@@ -5,6 +5,7 @@ import sqlite3
 import os.path
 import datetime
 import json
+import os
 from logging import FileHandler
 from subprocess import check_call as call
 from flask import *
@@ -148,6 +149,8 @@ def reg_plant():
 def view_plant():
     if not session.get('logged_in'):
         abort(401)
+    if not request.args.get('plant_id'):
+        return redirect( url_for('log_page') + '?log_page=log_view')
     argDict = {}
     argDict['log_page'] = 'log_view'
     argDict['entries'] = []
@@ -159,16 +162,18 @@ def view_plant():
         entry = {}
         for i, key in enumerate(columns):
             entry[key] = row[i]
-        entry['comment'] = entry['comment'].replace('\n','[br]')
+        if entry['comment']:
+            entry['comment'] = entry['comment'].replace('\n','[br]')
         argDict['entries'].append(entry)
-        print "comment: "
-        print entry['comment']
+    print argDict['entries'][0]
     return log_page(argDict=argDict)
 
 @app.route("/mg_plant")
 def mg_plant():
     if not session.get('logged_in'):
         abort(401)
+    if not request.args.get('plant_id'):
+        return redirect( url_for('log_page') + '?log_page=log_mg')
     argDict = {}
     argDict['log_page'] = 'log_mg'
     argDict['dataTypes_json'] = json.dumps(dataTypes)
@@ -206,7 +211,7 @@ def new_entry():
         new_cols = request.args.getlist('col_name')
         new_vals = request.args.getlist('col_value')
         for i in range(len(new_cols)):
-            new_cols[i] = str(new_cols[i])
+            new_cols[i] = str(new_cols[i]).strip()
             new_vals[i] = float(new_vals[i])
             db.execute('alter table {0} add {1} float'.format(id, new_cols[i]))
         cols += new_cols
@@ -225,7 +230,61 @@ def new_entry():
         print str(val)
     db.execute(command, vals)
     db.commit()
+    flash('Logged New Entry for {}'.format(id))
     return redirect( url_for('log_page') + "?log_page=log_mg" )
+
+@app.route("/ret_plant")
+def ret_plant():
+    if not session.get('logged_in'):
+        abort(401)
+    if not request.args.get('plant_id'):
+        return redirect( url_for('log_page') + '?log_page=log_ret')
+    argDict = {}
+    argDict['log_page'] = 'log_ret'
+    id = 'plant_' + request.args.get('plant_id')
+    db = get_db()
+    plants = []
+    for row in db.execute('select * from plants where id is {}'.format(request.args.get('plant_id'))):
+        plant = {}
+        plant['id'] = str(row[0])
+        plant['plant_type'] =row[1]
+        plant['nickname'] = row[2]
+        plant['born'] = str(row[3])
+        plant['retired'] = str(row[4])
+        plants.append(plant)
+    if len(plants) != 1:
+        app.logger.error(u"Not exactly one plant found. Could not handle ret_plant request")
+        abort(400)
+    else:
+        if plants[0]['retired'] == 'None':
+            argDict['retire_req'] = True
+        else:
+            argDict['delete_req'] = True
+    return log_page(argDict=argDict)
+
+@app.route("/commit_retire")
+def commit_retire():
+    if not session.get('logged_in'):
+        abort(401)
+    db = get_db()
+    db.execute('update plants set retired=? where id=?', (int(time.time()), int(request.args.get('plant_id'))))
+    db.commit()
+    return redirect( url_for('log_page') + "?log_page=log_ret" )
+
+@app.route("/commit_delete")
+def commit_delete():
+    if not session.get('logged_in'):
+        abort(401)
+    db = get_db()
+    db.execute('delete from plants where id=?', (request.args.get('plant_id'),))
+    db.commit()
+    id = 'plant_' + request.args.get('plant_id')
+    folder = 'static/plants/' + id
+    for file in os.listdir(folder):
+        filepath = folder + file
+        os.remove(filepath)
+    os.removedirs(('static/plants/' + id))
+    return redirect( url_for('log_page') + "?log_page=log_ret" )
 
 def getSensorData(col):
     return 1234
