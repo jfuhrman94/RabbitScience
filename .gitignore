@@ -11,8 +11,8 @@ logs/**
 !logs/.gitkeep
 
 # ignore database files
-*.db
-*.rrd
+**/*.db
+**/*.rrd
 
 # ignore plant image folders
 static/plants/**
