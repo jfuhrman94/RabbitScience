@@ -1,0 +1,25 @@
+<h2 class=heading>Retire Plant</h2>
+{% set form_action = 'ret_plant' %}
+{% include 'log-templates/log_search.html' %}
+
+{% if log_args.retire_req %}
+<h3>Retire Plant {{ request.args.get('plant_id') }}? </h3>
+<button type="button" onclick="confirmReq('retire');">Retire</button>
+<form hidden action="{{ url_for('commit_retire') }}" id='ret_del_form'></form>
+{% elif log_args.delete_req %}
+<h3>Delete Plant {{ request.args.get('plant_id') }}? </h3>
+<button type="button" onclick="confirmReq('delete');">Delete</button>
+<form hidden action="{{ url_for('commit_delete') }}" id='ret_del_form'></form>
+{% endif %}
+    <select hidden form='ret_del_form' name=plant_id>
+        <option selected value="{{ request.args.get('plant_id') }}"></option>
+    </select>
+</form>
+
+<script>
+    function confirmReq(actionType) {
+        if (confirm('Are you sure you want to permenantly ' + actionType + ' plant ' + {{request.args.get('plant_id')}} + '?')) {
+            document.getElementById('ret_del_form').submit();
+        }
+    }
+</script>

@@ -1,0 +1,34 @@
+<h2 class=heading>Register Plant</h2>
+<form id="reg_plant" action="{{ url_for('reg_plant') }}">
+        <dl>
+          <dt>Plant Type*:</dt>
+          <select type=text onChange="hide_plant();" id="plant_selector" name="plant_type" required>
+            <option value="new" selected>New</option>
+            {% for plant_type in log_args.plant_types %}
+            <option value="{{ plant_type }}">{{ plant_type }}</option>
+            {% endfor %}
+          </select>
+          <script>
+            function hide_plant() {
+              var new_plant = document.getElementById("plant_selector").value;
+              var new_plant_bin = document.getElementById("new_plant_bin");
+              if (new_plant != "new") {
+                new_plant_bin.style.visibility = 'hidden';
+                var new_plant_type = document.getElementById("new_plant_type");
+                new_plant_type.value = '';
+              } else {
+                new_plant_bin.style.visibility = 'visible';
+              }
+            }
+          </script>
+          <div id="new_plant_bin">
+            <dt>New Plant Type*:</dt>
+            <dd><input type=text id="new_plant_type" name=new_plant_type></dd>
+          </div>
+          <dt>Nickname:</dt>
+          <dd><input type=text name=nickname></dd>
+          <dt>Initial Comment:</dt>
+          <dd><textarea class="comment-box" form="reg_plant" name=comment></textarea></dd>
+          <dd><input type=submit value=Submit></dd>
+        </dl>
+    </form>

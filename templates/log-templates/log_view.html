@@ -1,0 +1,45 @@
+<h2 class=heading>View Plant</h2>
+{% set form_action = 'view_plant' %}
+{% include 'log-templates/log_search.html' %}
+
+{% if request.args.get('plant_id') %}
+<br>
+<h3>History for Plant {{ request.args.get('plant_id') }}</h3>
+<br>
+{% endif %}
+
+{% for entry in log_args.entries %}
+<div class=entry>
+    <p>
+    <b>Entry ID:</b> {{ entry.id }}<br>
+    <b>Posted:</b> {{ entry.posted }}<br>
+    {% for col in entry %}
+    {% if col == 'id' %}
+        {# already handled #}
+    {% elif col == 'posted' %}
+        {# already handled #}
+    {% elif col == 'comment' %}
+    {% if entry.comment %}
+    <b>Comment:</b> {{ entry.comment|striptags|replace("[br]","<br>&emsp;")|safe }}<br>
+    {% endif %}
+    {% elif col == 'img' %}
+    {% if entry.img != None %}
+    <b>Image:</b> <img src={{ url_for('.static',filename='plants/plant_1/test.png') }} alt='test'>
+    {% endif %}
+    {% else %}
+    {% if entry[col] %}
+    <b>{{ col }}:</b> {{ entry[col] }}<br>
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+    </p>
+</div>
+{% endfor %}
+<script>
+    window.onload=setFormID('id_form', '{{ request.args.get('plant_id') }}');
+    function setFormID(form_id, id) {
+        var form = document.getElementById(form_id);
+        form.value = id;
+        update_plant(form_id);
+    }
+</script>

@@ -1,0 +1,128 @@
+<h2 class=heading>Manage Plant</h2>
+{% set form_action = 'mg_plant' %}
+{% include 'log-templates/log_search.html' %}
+
+{% if request.args.get('plant_id') %}
+<br>
+<h3>New Entry for Plant {{ request.args.get('plant_id') }} &emsp;<input type=submit value=Submit form='new_entry_form'></h3>
+
+<br>
+
+<form action="{{ url_for('new_entry') }}" id='new_entry_form'>
+    <select hidden name=plant_id>
+        <option selected value="{{ request.args.get('plant_id') }}"></option>
+    </select>
+    <div class="checkbox-inline">
+        <label><input type="checkbox" onclick="enableObj('data_sel'); enableObj('save_all'); clearSelected('data_sel'); clearCheck('save_all');" name="save_sensor_data">Save Sensor Data</label>
+        <label hidden><input hidden disabled id='save_all' type="checkbox" name="save_all">Save for all active plants</label>
+    </div>
+    <div class="form-group">
+        <label for="data_sel"></label>
+        <select multiple disabled class="form-control" id="data_sel" name="sensor_data">
+        </select>
+    </div>
+
+    {% if log_args.manual_sources %}
+    <label>Log Manual Datasource(s):</label>
+    {% for source in log_args.manual_sources %}
+    <div class="form-group">
+        <div class="col">
+        <label>{{ source }}:</label>
+        <input type="text" class="form-control" name="{{ source }}" placeholder="">
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    
+    <div class="checkbox-inline">
+    <label><input type="checkbox" onclick="enableObj('col_name'); enableObj('col_value'); removeAllSources();" id='new_source' name="new_source">New Manual Datasource</label>
+    &emsp;
+    <button type="button" onclick="newManualSource();" style="height:30px; width:30px">+</button>
+    &emsp;
+    <button type="button" onclick="removeManualSource();" style="height:30px; width:30px">-</button>
+    </div>
+    <div id=new_source_container>
+    <div class="row" id=new_source_row>
+        <div class="col">
+        <label for="col_name">Name:</label>
+        <input disabled type="text" class="form-control" id="col_name" name="col_name">
+        </div>
+        <div class="col">
+        <label for="col_value">Inital Value:</label>
+        <input disabled type="text" class="form-control" id="col_value" name="col_value">
+        </div>
+    </div>
+    </div>
+
+    <dl></dl>
+    <dt>Comment:</dt>
+    <dd><textarea class="comment-box" form="new_entry_form" name=comment></textarea></dd>
+    </dl>
+</form>
+
+<script>
+    window.onload(pop_sel());
+    window.onload(setPlantID());
+    function setPlantID() {
+        document.getElementById('hidden_plant_id').value = "{{ request.args.get('plant_id') }}";
+    }
+    function pop_sel(){
+        var sel = document.getElementById('data_sel');
+        var dataTypes = JSON.parse({{ log_args.dataTypes_json|tojson|safe }});
+        for (var i=0; i<dataTypes.length; i++) {
+            var option = document.createElement("option");
+            option.value = dataTypes[i];
+            option.text = dataTypes[i];
+            sel.appendChild(option);
+        }
+    }
+    function enableObj(objID) {
+        var obj = document.getElementById(objID);
+        if (obj.disabled == false) {
+            obj.disabled = true;
+        } else {
+            obj.disabled = false;
+        }
+    }
+    function clearSelected(objID){
+    var elements = document.getElementById(objID).options;
+
+    for(var i = 0; i < elements.length; i++){
+      elements[i].selected = false;
+    }
+  }
+  function clearCheck(objID){
+      document.getElementById(objID).checked = false;
+  }
+  function newManualSource(){
+      if (document.getElementById('new_source').checked == false) {
+          return 0
+      }
+      var cont = document.getElementById('new_source_container');
+      var row1 = document.getElementById('new_source_row');
+      var row2 = row1.cloneNode(true);
+      row2.id = cont.childNodes.length
+
+      cont.appendChild(row2);
+  }
+  function removeManualSource(){
+      var cont = document.getElementById('new_source_container');
+      var count = cont.childNodes.length;
+      if (count > 3) {
+          var lastRow = cont.lastChild;
+          cont.removeChild(lastRow);
+          return true
+      }
+      return false
+  }
+  function removeAllSources(){
+    if (document.getElementById('new_source').checked == false) {
+        if (removeManualSource()) {
+            removeAllSources();
+        }
+    }
+  }
+</script>
+
+{% endif %}

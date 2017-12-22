@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="fill-height">
     <head>
       <title>RabbitScience</title>
 
@@ -12,19 +12,12 @@
 
       <!-- Custom styles for template -->
       <link rel="stylesheet" href="{{ url_for('.static',filename='navbar.css') }}">
-
-      <!-- my style stuff -->
-      <style>
-      img {
-        display: block;
-        margin: 20px auto;
-      }
-      </style>
+      <link rel="stylesheet" href="{{ url_for('.static',filename='popups.css') }}">
     
     </head>
 
-    <body style="background-color: #A7B3A5">
-      <nav class="navbar navbar-expand-sm navbar-dark bg-company-rust">
+    <body onLoad="openPopup();" class="fill-height" style="background-image: url({{ url_for('.static',filename='leaf-tile.jpg') }}); background-repeat: repeat">
+      <nav class="navbar navbar-expand-sm navbar-dark nav-main-color">
         <a class="navbar-brand" href="{{ url_for('root') }}">Rabbit Science</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -42,7 +35,7 @@
               <a class="nav-link" href="{{ url_for('data') }}">Data </a>
             </li>
             <li class="nav-item active">
-              <a class="nav-link" href="{{ url_for('log') }}">Log </a>
+              <a class="nav-link" href="{{ url_for('log_page') }}">Log </a>
             </li>
             <li class="nav-item active">
               <a class="nav-link" href="{{ url_for('configure') }}">Configure </a>
@@ -56,9 +49,38 @@
           </ul>
         </div>
       </nav>
-      <div class="container-fluid main">
+
+      <div class="container-fluid main fill-height">
         {% block content %}{% endblock %}
       </div>
+      
+      <!-- Popup function -->
+      <div class="popup">
+        {% for message in get_flashed_messages() %}
+        <span class="popuptext" id="myPopup">{{ message }}</span>
+        {% endfor %}
+      </div>
+      <script>
+        // When the user clicks on <div>, open the popup
+        function openPopup() {
+            var popup = document.getElementById("myPopup");
+            if (popup == null) {
+              return
+            }
+            popup.classList.toggle("show");
+            setTimeout(function closePopup() {
+              var popup = document.getElementById("myPopup");
+              popup.classList.toggle("show");
+              popup.classList.toggle("hide");
+              setTimeout(function hidePopup(){
+                var popup = document.getElementById("myPopup");
+                popup.classList.toggle("hide");
+              }, 950)
+            } , 3000)
+        }
+
+        </script>
+
       <!-- javascript for bootstrap -->
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
